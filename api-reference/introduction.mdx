@@ -1,33 +1,139 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API Reference"
+description: "Comprehensive guide to Sinkove's REST API"
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Welcome to Sinkove API
 
-## Welcome
+Sinkove's REST API provides programmatic access to our synthetic medical imaging platform. Use our API to create, manage, and download synthetic datasets for your research and development needs.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Base URL
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+All API requests should be made to:
+
+```
+https://api.sinkove.com
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+Sinkove API uses API key authentication. Include your API key in the Authorization header:
+
+```bash
+Authorization: Bearer YOUR_API_KEY
+```
+
+<Note>
+  You can generate API keys from your [profile settings](/api-keys). Keep your
+  API keys secure and never expose them in client-side code.
+</Note>
+
+## Rate Limiting
+
+API requests are rate limited to ensure fair usage:
+
+- **Standard Tier**: 100 requests per minute
+- **Premium Tier**: 500 requests per minute
+- **Enterprise**: Custom limits available
+
+Rate limit headers are included in all responses:
+
+- `X-RateLimit-Limit`: Maximum requests per window
+- `X-RateLimit-Remaining`: Requests remaining in current window
+- `X-RateLimit-Reset`: Time when the rate limit resets
+
+## Response Format
+
+All API responses use JSON format with consistent structure:
+
+### Success Response
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+  "success": true,
+  "data": {
+    // Response data here
+  },
+  "message": "Operation completed successfully"
+}
 ```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "Detailed error description",
+    "details": {}
+  }
+}
+```
+
+## Common Error Codes
+
+| Code                   | Description                         |
+| ---------------------- | ----------------------------------- |
+| `INVALID_API_KEY`      | API key is missing or invalid       |
+| `RATE_LIMIT_EXCEEDED`  | Too many requests, slow down        |
+| `DATASET_NOT_FOUND`    | Requested dataset does not exist    |
+| `INSUFFICIENT_CREDITS` | Account lacks credits for operation |
+| `VALIDATION_ERROR`     | Request parameters are invalid      |
+
+## SDKs and Libraries
+
+While you can use the REST API directly, we recommend our official SDKs:
+
+<CardGroup cols={2}>
+  <Card title="Python SDK" icon="python" href="/python-sdk">
+    Official Python library with full API coverage
+  </Card>
+  <Card
+    title="cURL Examples"
+    icon="terminal"
+    href="/api-reference/endpoint/get"
+  >
+    Raw HTTP examples for any programming language
+  </Card>
+</CardGroup>
+
+## Quick Start Example
+
+Here's a simple example to get you started:
+
+```bash
+# List your datasets
+curl -X GET "https://api.sinkove.com/v1/datasets" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json"
+```
+
+```python
+# Using Python SDK
+import sinkove as sk
+
+client = sk.client("YOUR_API_KEY")
+datasets = client.list_datasets()
+print(f"You have {len(datasets)} datasets")
+```
+
+## API Versioning
+
+The current API version is `v1`. All endpoints are prefixed with `/v1/`:
+
+```
+GET /v1/datasets
+POST /v1/datasets
+GET /v1/datasets/{id}
+```
+
+We maintain backward compatibility and will provide advance notice of any breaking changes.
+
+<Card
+  title="Explore API Endpoints"
+  icon="code"
+  href="/api-reference/endpoint/get"
+>
+  Browse detailed documentation for all available endpoints
+</Card>

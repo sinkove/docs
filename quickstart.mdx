@@ -1,97 +1,89 @@
 ---
-title: 'Quickstart'
-description: 'Start building awesome documentation in under 5 minutes'
+title: "Quick Start Guide"
+description: "Generate your first synthetic medical imaging dataset"
 ---
 
-## Setup your development
+## Creating a Synthetic Dataset
 
-Learn how to update your docs locally and deploy them to the public.
+Follow these simple steps to generate your synthetic dataset using Sinkove's platform:
 
-### Edit and preview
+### Step 1: Select Model
 
-<AccordionGroup>
-  <Accordion icon="github" title="Clone your docs locally">
-    During the onboarding process, we created a repository on your Github with
-    your docs content. You can find this repository on our
-    [dashboard](https://dashboard.mintlify.com). To clone the repository
-    locally, follow these
-    [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-    in your terminal.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Preview changes">
-    Previewing helps you make sure your changes look as intended. We built a
-    command line interface to render these changes locally. 
-    1. Install the
-    [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the
-    documentation changes locally with this command: ``` npm i -g mintlify ```
-    2. Run the following command at the root of your documentation (where
-    `docs.json` is): ``` mintlify dev ```
-    <Note>
-      If you’re currently using the legacy ```mint.json``` configuration file, please update the Mintlify CLI:
+Navigate to the **Generator** tab and choose a suitable generative model from the dropdown menu. Our models are optimized for different types of medical imaging scenarios.
 
+<Note>
+  Different models may specialize in specific imaging modalities or medical
+  conditions. Choose the one that best fits your research requirements.
+</Note>
 
-      ```npm i -g mintlify@latest```
-      And run the new upgrade command in your docs repository:
+### Step 2: Configure Dataset
 
-      ```mintlify upgrade```
-      You should now be using the new ```docs.json``` configuration file. Feel free to delete the ```mint.json``` file from your repository.
-    </Note>
-  </Accordion>
-</AccordionGroup>
+Fill in the provided fields with the details of the medical images you wish to generate:
 
-### Deploy your changes
+- **Prompts/Descriptions**: Enter relevant medical descriptions (e.g., "Severe cardiomegaly", "Normal chest X-ray")
+- **Dataset Size**: Currently limited to approximately 1000 images
+- **Additional Parameters**: Configure any model-specific settings as needed
 
-<AccordionGroup>
+<Tip>
+  Use specific, clinical terminology in your prompts for the most accurate
+  synthetic image generation.
+</Tip>
 
-<Accordion icon="message-bot" title="Install our Github app">
-  Our Github app automatically deploys your changes to your docs site, so you
-  don't need to manage deployments yourself. You can find the link to install on
-  your [dashboard](https://dashboard.mintlify.com). Once the bot has been
-  successfully installed, there should be a check mark next to the commit hash
-  of the repo.
-</Accordion>
-<Accordion icon="rocket" title="Push your changes">
-  [Commit and push your changes to
-  Git](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository#about-git-push)
-  for your changes to update in your docs site. If you push and don't see that
-  the Github app successfully deployed your changes, you can also manually
-  update your docs through our [dashboard](https://dashboard.mintlify.com).
-</Accordion>
+### Step 3: Generate Data
 
-</AccordionGroup>
+You have two options for data generation:
 
-## Update your docs
+#### Preview Generation
 
-Add content directly in your files with MDX syntax and React components. You can use any of our components, or even build your own.
+- Click **Generate sample** to preview a single synthetic image
+- Review the quality and adjust parameters if needed
+- This helps ensure the output matches your expectations
 
-<CardGroup>
+#### Full Dataset Generation
 
-<Card title="Add Content With MDX" icon="file" href="/essentials/markdown">
-  Add content to your docs with MDX syntax.
+- Set your desired dataset size (up to ~1000 images)
+- Click **Generate dataset** to initiate full dataset generation
+- Monitor the progress in your dashboard
+
+<Warning>
+  Dataset generation may take several minutes to hours depending on the size and
+  complexity of your request.
+</Warning>
+
+## Downloading Your Dataset
+
+Once your dataset is ready, use our Python SDK for quick and efficient downloading:
+
+```python
+import sinkove as sk
+import time
+
+# Initialize the client with your API key
+my_sk = sk.client("your_API_KEY")
+
+# Replace with your actual dataset ID
+dataset = my_sk.dataset("dataset_id_here")
+
+# Wait for dataset to be ready
+while not dataset.ready():
+    print("Dataset not ready, waiting...")
+    time.sleep(10)
+
+# Download the dataset
+dataset.save("./dataset.zip")
+print("Dataset downloaded successfully!")
+```
+
+<Card title="Next Steps" icon="arrow-right">
+  - **[Manage API Keys](/api-keys)** - Set up programmatic access - **[Python
+  SDK Guide](/python-sdk)** - Learn advanced SDK features - **[API
+  Reference](/api-reference/introduction)** - Explore REST API endpoints
 </Card>
 
-<Card
-  title="Add Code Blocks"
-  icon="square-code"
-  href="/essentials/code"
->
-  Add code directly to your docs with syntax highlighting.
-</Card>
+## Need Help?
 
-<Card
-  title="Add Images"
-  icon="image"
-  href="/essentials/images"
->
-  Add images to your docs to make them more engaging.
-</Card>
+If you encounter any issues or have questions:
 
-<Card
-  title="Add Custom Components"
-  icon="puzzle-piece"
-  href="/essentials/reusable-snippets"
->
-  Add templates to your docs to make them more reusable.
-</Card>
-
-</CardGroup>
+- Check our [API Reference](/api-reference/introduction) for technical details
+- Contact our support team at support@sinkove.com
+- Review the [Python SDK documentation](/python-sdk) for integration guidance
