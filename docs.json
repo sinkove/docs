@@ -17,15 +17,15 @@
             "group": "Get Started",
             "pages": [
               "index",
-              "quickstart"
+              "essentials/quickstart"
             ]
           },
           {
             "group": "Platform Features",
             "pages": [
-              "api-keys",
-              "python-sdk",
-              "datasets"
+              "essentials/api-keys",
+              "essentials/python-sdk",
+              "essentials/datasets"
             ]
           }
         ]
@@ -36,7 +36,7 @@
           {
             "group": "API Documentation",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/index"
             ]
           },
           {
@@ -53,14 +53,19 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://sinkove.mintlify.app/",
-          "icon": "book-open-cover"
+          "anchor": "Start Generating",
+          "href": "https://cloud.sinkove.com",
+          "icon": "rocket"
         },
         {
           "anchor": "Blog",
           "href": "https://sinkove.com/resources",
           "icon": "newspaper"
+        },
+        {
+          "anchor": "Python SDK",
+          "href": "https://github.com/sinkove/sinkove",
+          "icon": "python"
         }
       ]
     }
@@ -72,8 +77,8 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Contact",
+        "href": "https://sinkove.com/contact"
       }
     ],
     "primary": {
@@ -85,7 +90,8 @@
   "footer": {
     "socials": {
       "github": "https://github.com/sinkove",
-      "linkedin": "https://linkedin.com/company/sinkove"
+      "linkedin": "https://linkedin.com/company/sinkove",
+      "x": "https://x.com/sinkove_"
     }
   }
 }
