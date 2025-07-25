@@ -1,0 +1,258 @@
+---
+title: "SDK API Reference"
+description: "Complete API reference for the Sinkove Python SDK"
+---
+
+Complete reference for all classes, methods, and properties in the Sinkove Python SDK.
+
+## Installation
+
+```bash
+pip install sinkove-sdk
+```
+
+## Core Classes
+
+### Client
+
+Main entry point for the Sinkove API.
+
+```python
+from sinkove import Client
+
+# Initialize client
+client = Client(
+    organization_id=uuid.UUID("your-organization-id"),
+    api_key="your-api-key"  # Optional if SINKOVE_API_KEY env var is set
+)
+```
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | uuid.UUID | Organization ID |
+| `organization_name` | str | Organization name |
+| `datasets` | DatasetClient | Dataset operations interface |
+
+### Dataset
+
+Represents a dataset with metadata and operations.
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | uuid.UUID | Unique dataset identifier |
+| `model_id` | uuid.UUID | ID of the model used |
+| `organization_id` | uuid.UUID | Organization that owns this dataset |
+| `num_samples` | int | Number of samples to generate |
+| `args` | dict | Model-specific arguments |
+| `created_at` | str | ISO timestamp of creation |
+| `state` | str | Current processing state |
+| `finished` | bool | Whether processing is complete |
+| `ready` | bool | Whether dataset is ready for download |
+| `metadata` | Metadata \| None | Dataset metadata (if available) |
+
+#### Methods
+
+##### download
+
+```python
+dataset.download(
+    output_file: str,
+    strategy: "fail" | "skip" | "replace" = "fail",
+    wait: bool = False,
+    timeout: int = None
+) -> None
+```
+
+Download the dataset to a local file.
+
+**Parameters:**
+- `output_file`: Path where dataset will be saved
+- `strategy`: How to handle existing files (`"fail"`, `"skip"`, `"replace"`)
+- `wait`: Whether to wait for dataset to be ready
+- `timeout`: Maximum seconds to wait
+
+**Example:**
+```python
+dataset.download("output.zip", strategy="replace", wait=True, timeout=300)
+```
+
+##### wait
+
+```python
+dataset.wait(timeout: int = None) -> None
+```
+
+Block until dataset processing completes.
+
+**Example:**
+```python
+dataset.wait(timeout=600)  # Wait max 10 minutes
+```
+
+### DatasetClient
+
+Manages dataset operations for an organization.
+
+#### Methods
+
+##### create
+
+```python
+client.datasets.create(
+    model_id: uuid.UUID,
+    num_samples: int,
+    args: dict
+) -> Dataset
+```
+
+Create a new dataset generation request.
+
+**Example:**
+```python
+dataset = client.datasets.create(
+    model_id=uuid.UUID("38ac9115-0305-4446-a93e-427ab066a764"),
+    num_samples=100,
+    args={"prompt": "chest x-ray showing cardiomegaly"}
+)
+```
+
+##### list
+
+```python
+client.datasets.list() -> List[Dataset]
+```
+
+Retrieve all datasets for the organization.
+
+**Example:**
+```python
+datasets = client.datasets.list()
+for dataset in datasets:
+    print(f"{dataset.id}: {dataset.state}")
+```
+
+##### get
+
+```python
+client.datasets.get(dataset_id: uuid.UUID) -> Dataset
+```
+
+Retrieve a specific dataset by ID.
+
+**Example:**
+```python
+dataset = client.datasets.get(uuid.UUID("2e8f80f2-7f0e-4020-9464-6732a2386b6c"))
+```
+
+## Data Types
+
+### Metadata
+
+```python
+@dataclass
+class Metadata:
+    id: uuid.UUID
+    progress: int          # Completion percentage (0-100)
+    size: int             # Dataset size in bytes  
+    started_at: datetime  # When processing began
+    finished_at: datetime # When processing completed
+```
+
+### Dataset States
+
+| State | Description |
+|-------|-------------|
+| `"PENDING"` | Queued for processing |
+| `"STARTED"` | Currently generating |
+| `"READY"` | Successfully completed |
+| `"FAILED"` | Generation failed |
+
+## Advanced Classes
+
+### OrganizationClient
+
+For managing multiple organizations.
+
+```python
+from sinkove.connector import Connector
+from sinkove.organizations.client import OrganizationClient
+
+connector = Connector(api_key="your-api-key")
+org_client = OrganizationClient(connector)
+
+# List all organizations
+organizations = org_client.list()
+for org in organizations:
+    print(f"{org.organization_name}: {len(org.datasets.list())} datasets")
+```
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SINKOVE_API_KEY` | API key for authentication | Required |
+| `SINKOVE_API_URL` | API endpoint URL | `https://api.sinkove.com` |
+
+## Exception Handling
+
+| Exception | Cause |
+|-----------|-------|
+| `ValueError` | Missing required configuration |
+| `TimeoutError` | Operation timeout exceeded |
+| `Exception` | API errors, network issues, etc. |
+
+```python
+try:
+    dataset = client.datasets.create(model_id, 10, args)
+    dataset.wait(timeout=300)
+    dataset.download("output.zip")
+except ValueError as e:
+    print(f"Config error: {e}")
+except TimeoutError:
+    print("Operation timed out")
+except Exception as e:
+    print(f"Error: {e}")
+```
+
+## Complete Example
+
+```python
+import uuid
+from sinkove import Client
+
+client = Client(uuid.UUID("your-organization-id"))
+
+dataset = client.datasets.create(
+    model_id=uuid.UUID("your-model-id"),
+    num_samples=50,
+    args={"prompt": "chest x-ray showing pneumonia"}
+)
+
+dataset.wait(timeout=1800)
+dataset.download("dataset.zip", strategy="replace")
+print("Complete!")
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Python SDK Guide" icon="python" href="/essentials/python-sdk">
+    Complete SDK documentation
+  </Card>
+  
+  <Card title="Quick Start" icon="rocket" href="/essentials/sdk-quickstart">
+    Create your first dataset
+  </Card>
+  
+  <Card title="Examples" icon="code" href="/essentials/sdk-examples">
+    Advanced patterns and use cases
+  </Card>
+  
+  <Card title="Installation" icon="download" href="/essentials/sdk-installation">
+    Setup and configuration
+  </Card>
+</CardGroup> 

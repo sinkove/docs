@@ -1,256 +1,265 @@
 ---
 title: "Python SDK"
-description: "Integrate Sinkove into your Python workflows"
+description: "Integrate Sinkove's AI dataset generation API into your Python workflows"
 ---
+
+The Sinkove Python SDK provides a simple, powerful interface for generating AI datasets programmatically. This guide covers everything you need to know to get started.
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/essentials/sdk-installation">
+    Install and configure the SDK
+  </Card>
+  
+  <Card title="Quick Start" icon="rocket" href="/essentials/sdk-quickstart">
+    Create your first dataset in 5 minutes
+  </Card>
+  
+  <Card title="Examples" icon="code" href="/essentials/sdk-examples">
+    Practical code examples and patterns
+  </Card>
+  
+  <Card title="API Reference" icon="book" href="/essentials/sdk-reference">
+    Complete method and class documentation
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+Before using the SDK, ensure you have:
+
+- **Python 3.12+** installed
+- **API Key** from the Sinkove dashboard
+- **Organization ID** (UUID format)
+
+<Note>
+  API keys and Organization IDs are covered in the [Get Started](/essentials/quickstart) section.
+</Note>
 
 ## Installation
 
-Install the Sinkove Python SDK using pip:
-
 ```bash
-pip install sinkove
+pip install sinkove-sdk
 ```
 
-## Quick Start
+## Authentication
 
-### Initialize the Client
+The SDK requires an API key for authentication:
 
-```python
-import sinkove as sk
+<CodeGroup>
 
-# Initialize with your API key
-client = sk.client("your_API_KEY")
+```python Environment Variable (Recommended)
+import os
+import uuid
+from sinkove import Client
+
+# Set API key as environment variable
+os.environ['SINKOVE_API_KEY'] = 'your-api-key-here'
+
+# Initialize client
+client = Client(uuid.UUID("your-organization-id"))
 ```
 
-<Tip>
-  Store your API key securely using environment variables. See our [API Keys
-  guide](/api-keys) for best practices.
-</Tip>
+```python Direct Parameter
+import uuid
+from sinkove import Client
 
-### Basic Dataset Operations
-
-#### List Available Datasets
-
-```python
-# Get all your datasets
-datasets = client.list_datasets()
-
-for dataset in datasets:
-    print(f"Dataset: {dataset.id} - Status: {dataset.status}")
+# Pass API key directly (not recommended for production)
+client = Client(
+    uuid.UUID("your-organization-id"), 
+    api_key="your-api-key-here"
+)
 ```
 
-#### Access a Specific Dataset
+</CodeGroup>
+
+<Warning>
+  Never hardcode API keys in your source code. Use environment variables or secure configuration management.
+</Warning>
+
+## Basic Usage
 
 ```python
-# Get dataset by ID
-dataset = client.dataset("dataset_id_here")
+import uuid
+from sinkove import Client
 
-# Check dataset status
-if dataset.ready():
-    print("Dataset is ready for download")
-else:
-    print(f"Dataset status: {dataset.status}")
+# Initialize client
+organization_id = uuid.UUID("your-organization-id")
+model_id = uuid.UUID("your-model-id")
+client = Client(organization_id)
+
+# Create dataset
+dataset = client.datasets.create(
+    model_id=model_id,
+    num_samples=20,
+    args={"prompt": "chest x-ray showing pneumonia"}
+)
+
+# Wait for completion and download
+dataset.wait()
+dataset.download("medical_dataset.zip", strategy="replace")
+print(f"Dataset {dataset.id} ready!")
 ```
 
-#### Download Dataset
+## Core Concepts
+
+### Client
+
+The `Client` class is your main entry point to the SDK:
 
 ```python
-import time
+from sinkove import Client
+import uuid
 
-# Get dataset
-dataset = client.dataset("dataset_id_here")
+client = Client(uuid.UUID("your-organization-id"))
 
-# Wait for completion
-while not dataset.ready():
-    print("Waiting for dataset to be ready...")
-    time.sleep(10)
-
-# Download to local file
-dataset.save("./my_dataset.zip")
-print("Dataset downloaded successfully!")
+# Access organization properties
+print(f"Organization ID: {client.id}")
+print(f"Organization Name: {client.organization_name}")
 ```
 
-## Advanced Usage
+### Datasets
 
-### Dataset Creation
+Datasets are the core resource in Sinkove. They go through several states during processing:
+
+| State | Description |
+|-------|-------------|
+| `PENDING` | Dataset creation request received |
+| `STARTED` | Dataset generation in progress |
+| `READY` | Dataset successfully generated and ready for download |
+| `FAILED` | Dataset generation failed |
+
+## Dataset Operations
+
+### Creating Datasets
 
 ```python
-# Create a new dataset
-dataset_config = {
-    "model": "chest-xray-v2",
-    "prompts": [
-        "Severe cardiomegaly",
-        "Normal chest X-ray",
-        "Pneumonia with bilateral infiltrates"
-    ],
-    "size": 100
-}
+dataset = client.datasets.create(
+    model_id=uuid.UUID("your-model-id"),
+    num_samples=50,
+    args={"prompt": "chest x-ray showing pneumonia"}
+)
+print(f"Created dataset: {dataset.id}")
+```
 
-new_dataset = client.create_dataset(dataset_config)
-print(f"Created dataset: {new_dataset.id}")
+### Listing and Retrieving Datasets
+
+```python
+# Get all datasets
+datasets = client.datasets.list()
+
+# Get specific dataset
+dataset = client.datasets.get(uuid.UUID("dataset-id"))
+
+# Check dataset properties
+print(f"State: {dataset.state}")
+print(f"Ready: {dataset.ready}")
+print(f"Progress: {dataset.metadata.progress if dataset.metadata else 'N/A'}")
+```
+
+### Downloading Datasets
+
+The SDK provides flexible download options:
+
+```python
+# Basic download (fails if file exists)
+dataset.download("output.zip")
+
+# Wait for completion then download
+dataset.download("output.zip", wait=True, timeout=300)
+
+# Download with file handling strategy
+dataset.download("output.zip", strategy="replace")  # or "skip", "fail"
 ```
 
 ### Monitoring Progress
 
 ```python
-def wait_for_dataset(dataset, poll_interval=30):
-    """Wait for dataset completion with progress updates"""
-    while not dataset.ready():
-        status = dataset.status
-        progress = getattr(dataset, 'progress', 'Unknown')
-        print(f"Dataset {dataset.id}: {status} - {progress}")
-        time.sleep(poll_interval)
+# Wait for completion
+dataset.wait(timeout=600)  # Wait max 10 minutes
 
-    print(f"Dataset {dataset.id} is ready!")
-    return dataset
-
-# Usage
-dataset = client.dataset("your_dataset_id")
-completed_dataset = wait_for_dataset(dataset)
-```
-
-### Batch Operations
-
-```python
-# Download multiple datasets
-dataset_ids = ["id1", "id2", "id3"]
-
-for dataset_id in dataset_ids:
-    dataset = client.dataset(dataset_id)
-    if dataset.ready():
-        filename = f"./datasets/{dataset_id}.zip"
-        dataset.save(filename)
-        print(f"Downloaded {dataset_id}")
+# Manual status checking
+if dataset.finished:
+    if dataset.ready:
+        print("Dataset is ready!")
     else:
-        print(f"Dataset {dataset_id} not ready yet")
+        print(f"Failed with state: {dataset.state}")
 ```
 
 ## Error Handling
 
-Implement robust error handling for production use:
+Always implement proper error handling for production use:
 
 ```python
-import sinkove as sk
-from sinkove.exceptions import SinkovelAuthError, SinkovelAPIError
-
 try:
-    client = sk.client("your_API_KEY")
-    dataset = client.dataset("dataset_id")
-
-    if dataset.ready():
-        dataset.save("./dataset.zip")
-    else:
-        print(f"Dataset not ready. Status: {dataset.status}")
-
-except SinkovelAuthError:
-    print("Authentication failed. Check your API key.")
-except SinkovelAPIError as e:
-    print(f"API error: {e}")
+    client = Client(organization_id)
+    dataset = client.datasets.create(model_id, 50, {"prompt": "chest x-ray"})
+    dataset.wait(timeout=1800)  # 30 minutes
+    dataset.download("dataset.zip", strategy="replace")
+    
+except ValueError as e:
+    print(f"Configuration error: {e}")
+except TimeoutError:
+    print("Dataset generation timed out")
 except Exception as e:
-    print(f"Unexpected error: {e}")
+    print(f"Error: {e}")
 ```
 
-## SDK Reference
+## Advanced Features
 
-### Client Methods
-
-| Method                          | Description          | Returns                 |
-| ------------------------------- | -------------------- | ----------------------- |
-| `client.list_datasets()`        | Get all datasets     | List of Dataset objects |
-| `client.dataset(id)`            | Get specific dataset | Dataset object          |
-| `client.create_dataset(config)` | Create new dataset   | Dataset object          |
-
-### Dataset Properties
-
-| Property             | Description                 | Type    |
-| -------------------- | --------------------------- | ------- |
-| `dataset.id`         | Unique dataset identifier   | String  |
-| `dataset.status`     | Current status              | String  |
-| `dataset.ready()`    | Check if ready for download | Boolean |
-| `dataset.save(path)` | Download dataset            | None    |
-
-### Dataset Status Values
-
-- `pending` - Dataset creation queued
-- `processing` - Currently generating images
-- `ready` - Available for download
-- `failed` - Generation failed
-- `expired` - No longer available
-
-## Configuration
-
-### Environment Variables
-
-Set these environment variables for easier configuration:
-
-```bash
-export SINKOVE_API_KEY="your_api_key_here"
-export SINKOVE_BASE_URL="https://api.sinkove.com"  # Optional
-```
+### Custom API Endpoint
 
 ```python
 import os
-import sinkove as sk
-
-# SDK will automatically use SINKOVE_API_KEY
-client = sk.client()
-
-# Or override with custom settings
-client = sk.client(
-    api_key=os.getenv("SINKOVE_API_KEY"),
-    base_url=os.getenv("SINKOVE_BASE_URL", "https://api.sinkove.com")
-)
+os.environ['SINKOVE_API_URL'] = 'https://api.your-instance.com'
+client = Client(organization_id)
 ```
 
-## Examples
-
-### Complete Workflow Example
+### Multiple Organizations
 
 ```python
-import sinkove as sk
-import time
-import os
+from sinkove.connector import Connector
+from sinkove.organizations.client import OrganizationClient
 
-def generate_and_download_dataset():
-    """Complete example: create, monitor, and download dataset"""
+connector = Connector(api_key="your-api-key")
+org_client = OrganizationClient(connector)
 
-    # Initialize client
-    client = sk.client(os.getenv("SINKOVE_API_KEY"))
-
-    # Create dataset
-    config = {
-        "model": "chest-xray-v2",
-        "prompts": [
-            "Severe cardiomegaly",
-            "Bilateral pneumonia",
-            "Normal chest X-ray"
-        ],
-        "size": 50
-    }
-
-    print("Creating dataset...")
-    dataset = client.create_dataset(config)
-    print(f"Dataset created: {dataset.id}")
-
-    # Monitor progress
-    print("Waiting for completion...")
-    while not dataset.ready():
-        print(f"Status: {dataset.status}")
-        time.sleep(30)
-
-    # Download
-    filename = f"./medical_dataset_{dataset.id}.zip"
-    dataset.save(filename)
-    print(f"Dataset downloaded to: {filename}")
-
-if __name__ == "__main__":
-    generate_and_download_dataset()
+# List all organizations
+organizations = org_client.list()
+for org in organizations:
+    print(f"{org.organization_name}: {len(org.datasets.list())} datasets")
 ```
 
-<Card
-  title="Need Help?"
-  icon="question-circle"
-  href="mailto:support@sinkove.com"
->
-  Contact our support team for SDK assistance and integration guidance
-</Card>{" "}
+## Best Practices
+
+- **Security**: Use environment variables for API keys
+- **Error Handling**: Implement timeouts and proper exception handling
+- **Performance**: Use parallel operations for multiple datasets
+- **Resource Management**: Clean up downloaded files and monitor disk space
+
+## Common Issues
+
+| Problem | Solution |
+|---------|----------|
+| `ValueError: An API key is required` | Set `SINKOVE_API_KEY` environment variable |
+| `TimeoutError: Dataset processing timed out` | Increase timeout or check dataset complexity |
+| `Exception: Failed to retrieve download URL` | Ensure dataset is in READY state |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Installation Guide" icon="download" href="/essentials/sdk-installation">
+    Detailed installation and setup instructions
+  </Card>
+  
+  <Card title="Quick Start Tutorial" icon="rocket" href="/essentials/sdk-quickstart">
+    Step-by-step guide to your first dataset
+  </Card>
+  
+  <Card title="Code Examples" icon="code" href="/essentials/sdk-examples">
+    Advanced patterns and real-world use cases
+  </Card>
+  
+  <Card title="Full API Reference" icon="book" href="/essentials/sdk-reference">
+    Complete method and class documentation
+  </Card>
+</CardGroup>

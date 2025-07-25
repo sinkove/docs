@@ -55,35 +55,60 @@ You have two options for data generation:
 Once your dataset is ready, use our Python SDK for quick and efficient downloading:
 
 ```python
-import sinkove as sk
-import time
+import uuid
+from sinkove import Client
 
-# Initialize the client with your API key
-my_sk = sk.client("your_API_KEY")
+# Initialize the client with your organization ID
+# API key is read from SINKOVE_API_KEY environment variable
+client = Client(uuid.UUID("your-organization-id"))
 
-# Replace with your actual dataset ID
-dataset = my_sk.dataset("dataset_id_here")
+# Get your dataset by ID
+dataset_id = uuid.UUID("your-dataset-id")
+dataset = client.datasets.get(dataset_id)
 
-# Wait for dataset to be ready
-while not dataset.ready():
-    print("Dataset not ready, waiting...")
-    time.sleep(10)
-
-# Download the dataset
-dataset.save("./dataset.zip")
-print("Dataset downloaded successfully!")
+# Check if dataset is ready
+if dataset.ready:
+    # Download the dataset
+    dataset.download("./dataset.zip", strategy="replace")
+    print("Dataset downloaded successfully!")
+else:
+    print(f"Dataset not ready. Current state: {dataset.state}")
+    
+    # Or wait for it to be ready
+    dataset.wait()  # Blocks until ready
+    dataset.download("./dataset.zip", strategy="replace")
+    print("Dataset downloaded successfully!")
 ```
 
-<Card title="Next Steps" icon="arrow-right">
-  - **[Manage API Keys](/api-keys)** - Set up programmatic access - **[Python
-  SDK Guide](/python-sdk)** - Learn advanced SDK features - **[API
-  Reference](/api-reference/introduction)** - Explore REST API endpoints
-</Card>
+<Info>
+  Need to set up the SDK? Check our [SDK Installation Guide](/essentials/sdk-installation) or jump straight to the [SDK Quick Start](/essentials/sdk-quickstart).
+</Info>
+
+## Quick Links
+
+<CardGroup cols={2}>
+  <Card title="SDK Installation" icon="download" href="/essentials/sdk-installation">
+    Install and configure the Python SDK
+  </Card>
+  
+  <Card title="SDK Quick Start" icon="rocket" href="/essentials/sdk-quickstart">
+    Create your first dataset with code
+  </Card>
+  
+  <Card title="API Keys" icon="key" href="/essentials/api-keys">
+    Set up API authentication
+  </Card>
+  
+  <Card title="SDK Examples" icon="code" href="/essentials/sdk-examples">
+    Browse practical code examples
+  </Card>
+</CardGroup>
 
 ## Need Help?
 
 If you encounter any issues or have questions:
 
-- Check our [API Reference](/api-reference/introduction) for technical details
+- Check our [SDK API Reference](/essentials/sdk-reference) for technical details
 - Contact our support team at support@sinkove.com
-- Review the [Python SDK documentation](/python-sdk) for integration guidance
+- Browse [SDK Examples](/essentials/sdk-examples) for common use cases
+- Review the complete [Python SDK documentation](/essentials/python-sdk)

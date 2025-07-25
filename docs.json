@@ -17,34 +17,24 @@
             "group": "Get Started",
             "pages": [
               "index",
-              "essentials/quickstart"
+              "essentials/quickstart",
+              "essentials/api-keys"
+            ]
+          },
+          {
+            "group": "Python SDK",
+            "pages": [
+              "essentials/python-sdk",
+              "essentials/sdk-installation",
+              "essentials/sdk-quickstart",
+              "essentials/sdk-examples",
+              "essentials/sdk-reference"
             ]
           },
           {
             "group": "Platform Features",
             "pages": [
-              "essentials/api-keys",
-              "essentials/python-sdk",
               "essentials/datasets"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API Reference",
-        "groups": [
-          {
-            "group": "API Documentation",
-            "pages": [
-              "api-reference/index"
-            ]
-          },
-          {
-            "group": "Endpoints",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete"
             ]
           }
         ]
@@ -64,8 +54,13 @@
         },
         {
           "anchor": "Python SDK",
-          "href": "https://github.com/sinkove/sinkove",
+          "href": "https://pypi.org/project/sinkove-sdk",
           "icon": "python"
+        },
+        {
+          "anchor": "REST API Reference",
+          "href": "https://api.sinkove.com/docs/index.html#/public",
+          "icon": "code"
         }
       ]
     }

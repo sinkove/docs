@@ -1,0 +1,71 @@
+---
+title: "SDK Installation"
+description: "Install and configure the Sinkove Python SDK"
+---
+
+## Prerequisites
+
+- **Python 3.12+** installed
+- **API key** from the Sinkove dashboard (covered in [Get Started](/essentials/quickstart))
+- **Organization ID** (UUID format)
+
+## Install with pip
+
+```bash
+pip install sinkove-sdk
+```
+
+## Configure Environment Variables
+
+<CodeGroup>
+
+```bash Linux/macOS
+export SINKOVE_API_KEY="your-api-key-here"
+```
+
+```bash Windows (Command Prompt)
+set SINKOVE_API_KEY=your-api-key-here
+```
+
+```powershell Windows (PowerShell)
+$env:SINKOVE_API_KEY = "your-api-key-here"
+```
+
+</CodeGroup>
+
+## Verify Installation
+
+```python
+import sinkove
+from sinkove import Client
+import uuid
+
+print(f"Sinkove SDK version: {sinkove.__version__}")
+
+# Test connection
+try:
+    client = Client(uuid.UUID("your-organization-id"))
+    print("✓ Successfully connected to Sinkove API")
+except Exception as e:
+    print(f"✗ Connection failed: {e}")
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/essentials/sdk-quickstart">
+    Create your first dataset in 5 minutes
+  </Card>
+
+  <Card title="Python SDK Guide" icon="python" href="/essentials/python-sdk">
+    Complete SDK documentation
+  </Card>
+
+  <Card title="Examples" icon="code" href="/essentials/sdk-examples">
+    Practical code examples
+  </Card>
+
+  <Card title="API Reference" icon="book" href="/essentials/sdk-reference">
+    Complete method documentation
+  </Card>
+</CardGroup>{" "}

@@ -1,0 +1,160 @@
+---
+title: "SDK Quick Start"
+description: "Create your first AI dataset in 5 minutes with the Sinkove Python SDK"
+---
+
+## Prerequisites
+
+<CardGroup cols={3}>
+  <Card title="Python 3.12+" icon="python">
+    Required for SDK
+  </Card>
+  
+  <Card title="API Key" icon="key">
+    From your dashboard
+  </Card>
+  
+  <Card title="Organization ID" icon="building">
+    Your org UUID
+  </Card>
+</CardGroup>
+
+<Note>
+  API keys and Organization IDs are covered in the [Get Started](/essentials/quickstart) section.
+</Note>
+
+## 1. Install the SDK
+
+```bash
+pip install sinkove-sdk
+```
+
+## 2. Set Your API Key
+
+```bash
+export SINKOVE_API_KEY="your-api-key-here"
+```
+
+## 3. Create Your First Dataset
+
+Create `first_dataset.py`:
+
+```python
+import uuid
+from sinkove import Client
+
+# Your IDs (replace with actual values)
+ORGANIZATION_ID = uuid.UUID("your-organization-id")
+MODEL_ID = uuid.UUID("your-model-id")
+
+# Initialize client
+client = Client(ORGANIZATION_ID)
+
+# Create dataset
+print("Creating dataset...")
+dataset = client.datasets.create(
+    model_id=MODEL_ID,
+    num_samples=10,
+    args={"prompt": "chest x-ray showing pneumonia"}
+)
+
+print(f"Dataset created! ID: {dataset.id}")
+
+# Wait and download
+print("Waiting for completion...")
+dataset.wait()
+
+print("Downloading...")
+dataset.download("my_first_dataset.zip", strategy="replace")
+print("✓ Complete!")
+```
+
+## 4. Run the Script
+
+```bash
+python first_dataset.py
+```
+
+Expected output:
+```
+Creating dataset...
+Dataset created! ID: 123e4567-e89b-12d3-a456-426614174000
+Waiting for completion...
+Downloading...
+✓ Complete!
+```
+
+## Understanding the Code
+
+- **Client Initialization**: `Client(ORGANIZATION_ID)` connects using your API key
+- **Dataset Creation**: Specifies model, sample count, and generation parameters
+- **Waiting**: `dataset.wait()` blocks until generation completes
+- **Downloading**: Saves the generated dataset locally
+
+## Common Patterns
+
+```python
+# Check dataset status
+print(f"State: {dataset.state}, Ready: {dataset.ready}")
+
+# Handle existing datasets
+dataset = client.datasets.get(uuid.UUID("existing-dataset-id"))
+if dataset.ready:
+    dataset.download("dataset.zip")
+
+# List all datasets
+datasets = client.datasets.list()
+for ds in datasets:
+    print(f"{ds.id}: {ds.state}")
+```
+
+## Error Handling
+
+```python
+try:
+    client = Client(ORGANIZATION_ID)
+    dataset = client.datasets.create(MODEL_ID, 10, {"prompt": "test"})
+    dataset.wait(timeout=300)
+    dataset.download("output.zip")
+except ValueError as e:
+    print(f"Configuration error: {e}")
+except TimeoutError:
+    print("Dataset generation took too long")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Python SDK Guide" icon="python" href="/essentials/python-sdk">
+    Complete SDK documentation and advanced features
+  </Card>
+  
+  <Card title="Code Examples" icon="code" href="/essentials/sdk-examples">
+    Advanced patterns and real-world use cases
+  </Card>
+  
+  <Card title="API Reference" icon="book" href="/essentials/sdk-reference">
+    Complete method and class documentation
+  </Card>
+  
+  <Card title="Model Catalog" icon="cube" href="https://cloud.sinkove.com/models">
+    Browse available AI models
+  </Card>
+</CardGroup>
+
+## Quick Reference
+
+```python
+# Essential methods
+dataset = client.datasets.create(model_id, num_samples, args)
+dataset = client.datasets.get(dataset_id)
+datasets = client.datasets.list()
+dataset.download("output.zip", strategy="replace", wait=True)
+dataset.wait(timeout=600)
+
+# Check status
+dataset.ready  # bool
+dataset.state  # "PENDING", "STARTED", "READY", "FAILED"
+``` 
