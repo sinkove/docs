@@ -18,23 +18,24 @@
             "pages": [
               "index",
               "essentials/quickstart",
-              "essentials/api-keys"
+              "essentials/api-keys",
+              "essentials/organizations"
             ]
           },
           {
+            "group": "Models",
+            "pages": [
+              "models/index" 
+            ]
+          },
+            {
             "group": "Python SDK",
             "pages": [
-              "essentials/python-sdk",
-              "essentials/sdk-installation",
-              "essentials/sdk-quickstart",
-              "essentials/sdk-examples",
-              "essentials/sdk-reference"
-            ]
-          },
-          {
-            "group": "Platform Features",
-            "pages": [
-              "essentials/datasets"
+              "python-sdk/introduction",
+              "python-sdk/sdk-installation",
+              "python-sdk/sdk-quickstart",
+              "python-sdk/sdk-examples",
+              "python-sdk/sdk-reference"
             ]
           }
         ]
