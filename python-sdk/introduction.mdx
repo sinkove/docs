@@ -1,23 +1,29 @@
 ---
-title: "Python SDK"
+title: "Introduction"
 description: "Integrate Sinkove's AI dataset generation API into your Python workflows"
 ---
 
 The Sinkove Python SDK provides a simple, powerful interface for generating AI datasets programmatically. This guide covers everything you need to know to get started.
 
 <CardGroup cols={2}>
-  <Card title="Installation" icon="download" href="/essentials/sdk-installation">
+  <Card
+    title="Installation"
+    icon="download"
+    href="/essentials/sdk-installation"
+  >
     Install and configure the SDK
   </Card>
-  
-  <Card title="Quick Start" icon="rocket" href="/essentials/sdk-quickstart">
-    Create your first dataset in 5 minutes
-  </Card>
-  
-  <Card title="Examples" icon="code" href="/essentials/sdk-examples">
-    Practical code examples and patterns
-  </Card>
-  
+
+{" "}
+<Card title="Quick Start" icon="rocket" href="/essentials/sdk-quickstart">
+  Create your first dataset in 5 minutes
+</Card>
+
+{" "}
+<Card title="Examples" icon="code" href="/essentials/sdk-examples">
+  Practical code examples and patterns
+</Card>
+
   <Card title="API Reference" icon="book" href="/essentials/sdk-reference">
     Complete method and class documentation
   </Card>
@@ -29,10 +35,11 @@ Before using the SDK, ensure you have:
 
 - **Python 3.12+** installed
 - **API Key** from the Sinkove dashboard
-- **Organization ID** (UUID format)
+- **Organization ID** (UUID format) from the Sinkove dashboard
 
 <Note>
-  API keys and Organization IDs are covered in the [Get Started](/essentials/quickstart) section.
+  API keys and Organization IDs are covered in the [Get
+  Started](/essentials/quickstart) section.
 </Note>
 
 ## Installation
@@ -65,7 +72,7 @@ from sinkove import Client
 
 # Pass API key directly (not recommended for production)
 client = Client(
-    uuid.UUID("your-organization-id"), 
+    uuid.UUID("your-organization-id"),
     api_key="your-api-key-here"
 )
 ```
@@ -73,7 +80,8 @@ client = Client(
 </CodeGroup>
 
 <Warning>
-  Never hardcode API keys in your source code. Use environment variables or secure configuration management.
+  Never hardcode API keys in your source code. Use environment variables or
+  secure configuration management.
 </Warning>
 
 ## Basic Usage
@@ -121,12 +129,12 @@ print(f"Organization Name: {client.organization_name}")
 
 Datasets are the core resource in Sinkove. They go through several states during processing:
 
-| State | Description |
-|-------|-------------|
-| `PENDING` | Dataset creation request received |
-| `STARTED` | Dataset generation in progress |
-| `READY` | Dataset successfully generated and ready for download |
-| `FAILED` | Dataset generation failed |
+| State     | Description                                           |
+| --------- | ----------------------------------------------------- |
+| `PENDING` | Dataset creation request received                     |
+| `STARTED` | Dataset generation in progress                        |
+| `READY`   | Dataset successfully generated and ready for download |
+| `FAILED`  | Dataset generation failed                             |
 
 ## Dataset Operations
 
@@ -195,7 +203,7 @@ try:
     dataset = client.datasets.create(model_id, 50, {"prompt": "chest x-ray"})
     dataset.wait(timeout=1800)  # 30 minutes
     dataset.download("dataset.zip", strategy="replace")
-    
+
 except ValueError as e:
     print(f"Configuration error: {e}")
 except TimeoutError:
@@ -238,27 +246,37 @@ for org in organizations:
 
 ## Common Issues
 
-| Problem | Solution |
-|---------|----------|
-| `ValueError: An API key is required` | Set `SINKOVE_API_KEY` environment variable |
+| Problem                                      | Solution                                     |
+| -------------------------------------------- | -------------------------------------------- |
+| `ValueError: An API key is required`         | Set `SINKOVE_API_KEY` environment variable   |
 | `TimeoutError: Dataset processing timed out` | Increase timeout or check dataset complexity |
-| `Exception: Failed to retrieve download URL` | Ensure dataset is in READY state |
+| `Exception: Failed to retrieve download URL` | Ensure dataset is in READY state             |
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Installation Guide" icon="download" href="/essentials/sdk-installation">
+  <Card
+    title="Installation Guide"
+    icon="download"
+    href="/essentials/sdk-installation"
+  >
     Detailed installation and setup instructions
   </Card>
-  
-  <Card title="Quick Start Tutorial" icon="rocket" href="/essentials/sdk-quickstart">
-    Step-by-step guide to your first dataset
-  </Card>
-  
-  <Card title="Code Examples" icon="code" href="/essentials/sdk-examples">
-    Advanced patterns and real-world use cases
-  </Card>
-  
+
+{" "}
+<Card
+  title="Quick Start Tutorial"
+  icon="rocket"
+  href="/essentials/sdk-quickstart"
+>
+  Step-by-step guide to your first dataset
+</Card>
+
+{" "}
+<Card title="Code Examples" icon="code" href="/essentials/sdk-examples">
+  Advanced patterns and real-world use cases
+</Card>
+
   <Card title="Full API Reference" icon="book" href="/essentials/sdk-reference">
     Complete method and class documentation
   </Card>
